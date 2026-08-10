@@ -3,8 +3,20 @@ import { getUsers, mockDelay } from './data';
 export async function login({ email, password, role }) {
   await mockDelay(600);
   const users = getUsers();
-  // Find a user matching the requested role (for demo purposes) or fallback to first
-  const user = users.find((u) => u.role === role) || users[0];
+  
+  // Try strict matching first
+  let user = users.find((u) => u.email === email && u.role === role);
+  
+  // If not found (often due to localStorage cache keeping old emails), fallback to role
+  if (!user) {
+    user = users.find((u) => u.role === role);
+  }
+
+  // Final fallback just in case
+  if (!user) {
+    user = users[0];
+  }
+  
   const token = `mock.${btoa(user.id)}.token`;
   
   localStorage.setItem('evault_token', token);

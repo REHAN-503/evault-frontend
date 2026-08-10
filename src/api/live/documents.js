@@ -86,3 +86,36 @@ export async function getDocumentAudit(docId) {
   const { data } = await client.get(`/documents/${docId}/audit`);
   return data;
 }
+
+export async function updateDocument(docId, { file }, onStep) {
+  const steps = [
+    'Encrypting new version (AES-256)',
+    'Authenticating request',
+    'Uploading file to IPFS',
+    'Updating DocumentRegistryContract',
+    'DocumentUpdated event confirmed',
+  ];
+  onStep?.(0, steps[0]);
+  const encryptedFile = await encryptFile(file, DEMO_ENCRYPTION_KEY);
+
+  const form = new FormData();
+  form.append('file', encryptedFile);
+
+  onStep?.(1, steps[1]);
+  const { data } = await client.put(`/documents/${docId}`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (evt) => {
+      const progress = Math.round((evt.loaded / evt.total) * 100);
+      if (progress > 20) onStep?.(2, steps[2]);
+      if (progress > 50) onStep?.(3, steps[3]);
+      if (progress > 80) onStep?.(4, steps[4]);
+    },
+  });
+  
+  return data;
+}
+
+export async function deleteDocument(docId) {
+  const { data } = await client.delete(`/documents/${docId}`);
+  return data;
+}

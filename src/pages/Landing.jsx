@@ -4,46 +4,79 @@ import Seal from '../components/Seal';
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-paper text-ink flex flex-col justify-center items-center">
-      <header className="fixed top-0 w-full max-w-6xl mx-auto px-6 md:px-10 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <Seal status="verified" size={28} animate={false} />
-          <span className="font-display text-lg">eVault</span>
-        </div>
-        <Link
-          to="/login"
-          className="rounded-lg bg-ink text-paper text-sm px-5 py-2 hover:bg-ink-2 transition-colors"
-        >
-          Registry Access
-        </Link>
-      </header>
-
-      <motion.main
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="w-full max-w-xl text-center px-6"
-      >
-        <div className="flex justify-center mb-8">
-          <Seal status="verified" size={80} animate={true} />
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl leading-tight mb-4">
-          Legal Records Management
-        </h1>
-        <p className="text-slate text-lg mb-10 max-w-md mx-auto">
-          Secure, immutable storage and verification of court evidence and case filings.
-        </p>
-        <Link
-          to="/login"
-          className="inline-block rounded-lg bg-ink text-paper px-8 py-3.5 text-sm font-medium hover:bg-ink-2 transition-colors shadow-sm"
-        >
-          Sign In to Registry
-        </Link>
-      </motion.main>
+    <div className="min-h-screen bg-paper text-ink font-body flex flex-col relative overflow-hidden selection:bg-seal/20 selection:text-seal-dark">
       
-      <footer className="fixed bottom-0 w-full text-center py-6">
-        <p className="text-xs text-slate uppercase tracking-widest">Ministry of Law &amp; Justice</p>
-      </footer>
+      {/* Premium Background Glows */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-seal/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-verified/10 blur-[120px] pointer-events-none" />
+
+      <header className="px-6 md:px-10 py-6 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="inline-flex items-center gap-2.5"
+        >
+          <Seal status="verified" size={28} animate={false} />
+          <span className="font-display font-semibold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-ink to-slate">eVault</span>
+        </motion.div>
+      </header>
+      
+      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center max-w-4xl mx-auto w-full relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+          className="mb-8 relative"
+        >
+          <div className="absolute inset-0 bg-seal/20 rounded-full blur-2xl animate-pulse" />
+          <div className="relative bg-white/50 backdrop-blur-sm p-6 rounded-full border border-white shadow-xl">
+            <Seal status="verified" size={72} animate={true} />
+          </div>
+        </motion.div>
+
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+          className="font-display text-5xl md:text-6xl font-semibold tracking-tight mb-6 text-ink drop-shadow-sm"
+        >
+          Secure Legal Records <br className="hidden md:block"/> Management
+        </motion.h1>
+
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
+          className="text-slate text-lg md:text-xl mb-12 max-w-2xl leading-relaxed"
+        >
+          The institutional blockchain-backed registry for court documentation, evidence, and cryptographically verifiable legal records.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.4 }}
+        >
+          <Link 
+            to="/login"
+            className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg bg-ink px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-ink-2"
+          >
+            <span className="absolute inset-0 bg-gradient-to-r from-seal to-verified opacity-0 transition-opacity duration-300 group-hover:opacity-20" />
+            <span className="relative">Access Registry Portal</span>
+          </Link>
+        </motion.div>
+      </main>
+      
+      <motion.footer 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 0.8 }}
+        className="py-8 text-center text-xs text-slate relative z-10"
+      >
+        &copy; {new Date().getFullYear()} Ministry of Law and Justice. SIH1284. <br />
+        <span className="opacity-50">EVM Ledger Node: Operational</span>
+      </motion.footer>
     </div>
   );
 }

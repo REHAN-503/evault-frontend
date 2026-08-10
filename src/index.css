@@ -7,14 +7,24 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-paper text-ink font-body antialiased;
+    background-color: theme('colors.paper.DEFAULT');
+    color: theme('colors.ink.DEFAULT');
+    @apply font-body antialiased;
   }
   ::selection {
-    @apply bg-seal/30;
+    @apply bg-seal/20;
   }
-  *:focus-visible {
-    outline: 2px solid #A8783C;
-    outline-offset: 2px;
+  
+  /* Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate/30 rounded-full hover:bg-slate/50 transition-colors;
   }
 }
 
@@ -22,24 +32,10 @@
   .font-feature-tab {
     font-feature-settings: 'tnum' 1;
   }
-  .grain::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: theme('backgroundImage.grain');
-    pointer-events: none;
-    z-index: 999;
-  }
   .hairline {
     border-color: theme('colors.line');
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm;
   }
 }

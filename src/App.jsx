@@ -6,12 +6,16 @@ import Login from './pages/Login';
 import LawyerDashboard from './pages/LawyerDashboard';
 import JudgeDashboard from './pages/JudgeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ClientDashboard from './pages/ClientDashboard';
 import AuditPage from './pages/AuditPage';
 import DocumentDetail from './pages/DocumentDetail';
+import NotFound from './pages/NotFound';
+import { Toaster } from 'sonner';
 
 export default function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-center" richColors theme="light" />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -26,7 +30,11 @@ export default function App() {
           <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AuditPage role="admin" /></ProtectedRoute>} />
 
+          <Route path="/client" element={<ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>} />
+
           <Route path="/documents/:docId" element={<ProtectedRoute><DocumentDetail /></ProtectedRoute>} />
+          
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

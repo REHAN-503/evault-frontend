@@ -1,14 +1,16 @@
 export const roles = {
   LAWYER: 'lawyer',
   JUDGE: 'judge',
+  CLIENT: 'client',
   ADMIN: 'admin',
 };
 
 const initialUsers = [
-  { id: 'usr_101', name: 'Ananya Rao', email: 'ananya@rao.com', role: roles.LAWYER, org: 'Rao & Associates', status: 'active' },
-  { id: 'usr_102', name: 'Justice K. Menon', email: 'menon@court.gov.in', role: roles.JUDGE, org: 'High Court of Delhi', status: 'active' },
-  { id: 'usr_103', name: 'Vikram Sethi', email: 'vikram@registry.gov.in', role: roles.ADMIN, org: 'Registry Office', status: 'active' },
+  { id: 'usr_101', name: 'Ananya Rao', email: 'lawyer@gov.in', role: roles.LAWYER, org: 'Rao & Associates', status: 'active' },
+  { id: 'usr_102', name: 'Justice K. Menon', email: 'judge@gov.in', role: roles.JUDGE, org: 'High Court of Delhi', status: 'active' },
+  { id: 'usr_103', name: 'Vikram Sethi', email: 'admin@gov.in', role: roles.ADMIN, org: 'Registry Office', status: 'active' },
   { id: 'usr_104', name: 'Priya Nair', email: 'priya@nair.com', role: roles.LAWYER, org: 'Nair Legal Chambers', status: 'active' },
+  { id: 'usr_105', name: 'Rahul Sharma', email: 'client@gov.in', role: roles.CLIENT, org: 'Individual', status: 'active' },
 ];
 
 const initialDocuments = [

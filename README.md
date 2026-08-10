@@ -17,8 +17,12 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:5173`. Sign in as any role from the login screen —
-mock mode accepts any email/password.
+Opens at `http://localhost:5173`. Sign in by selecting a role and using the corresponding mock email:
+- Lawyer: `lawyer@gov.in`
+- Judge: `judge@gov.in`
+- Admin: `admin@gov.in`
+- Client: `client@gov.in`
+*(Any password will work).*
 
 ## Connect the real backend
 
