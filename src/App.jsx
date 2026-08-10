@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -15,8 +16,9 @@ import { Toaster } from 'sonner';
 export default function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-center" richColors theme="light" />
-      <BrowserRouter>
+      <NotificationProvider>
+        <Toaster position="top-center" richColors theme="light" />
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
@@ -38,6 +40,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

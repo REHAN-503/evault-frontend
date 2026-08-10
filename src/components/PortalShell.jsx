@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import Seal from './Seal';
+import { useNotifications } from '../context/NotificationContext';
 
 const NAV_STRUCTURE = {
   lawyer: [
@@ -54,6 +55,8 @@ export default function PortalShell({ role, user, children }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const notifRef = useRef();
   const profileRef = useRef();
@@ -214,51 +217,53 @@ export default function PortalShell({ role, user, children }) {
 
           <div className="flex items-center gap-5 ml-6">
             <div className="relative" ref={notifRef}>
-              <button
-                type="button"
+              <button 
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-seal/30 ${notificationsOpen ? 'bg-seal text-white shadow-md' : 'text-slate hover:text-ink hover:bg-slate/10'}`}
-                aria-label="System alerts"
-                aria-expanded={notificationsOpen}
+                className={`relative p-2 rounded-full transition-all duration-300 ${notificationsOpen ? 'bg-seal text-white shadow-md scale-105' : 'text-slate hover:text-ink hover:bg-slate/10'}`}
               >
                 <Bell size={18} />
-                <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full border-2 border-white ${accent.dot}`} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-maroon rounded-full border-2 border-white"></span>
+                )}
               </button>
 
               <AnimatePresence>
                 {notificationsOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute top-full mt-3 right-0 w-80 bg-white border border-line rounded-xl shadow-2xl z-50 overflow-hidden"
+                  <motion.div 
+                    initial={{ opacity: 0, y: 15, scale: 0.9, rotateX: -10 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95, transition: { duration: 0.2 } }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    style={{ transformPerspective: 800 }}
+                    className="absolute top-full mt-3 right-0 w-80 bg-white border border-line rounded-xl shadow-2xl z-50 overflow-hidden origin-top-right"
                   >
-                    <div className="px-4 py-3 border-b border-line flex justify-between items-center bg-paper-dim/50">
+                    <div className="px-4 py-3 border-b border-line flex justify-between items-center bg-[#FAFAFA]">
                       <span className="text-sm font-semibold text-ink">System Alerts</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          toast.success('Alerts cleared');
-                          setNotificationsOpen(false);
-                        }}
-                        className="text-xs font-medium text-slate hover:text-ink transition-colors"
-                      >
-                        Mark all read
-                      </button>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={() => markAllAsRead()} 
+                          className="text-xs font-medium text-slate hover:text-ink transition-colors"
+                        >
+                          Mark all read
+                        </button>
+                      )}
                     </div>
                     <div className="max-h-72 overflow-y-auto">
-                      {[
-                        { id: 1, title: 'Document Verified', desc: 'Case CIV/2026/0417 verified on ledger', time: '10m ago', unread: true },
-                        { id: 2, title: 'Ledger Sync', desc: 'Hyperledger Fabric state synchronized.', time: '1h ago', unread: false },
-                      ].map((n) => (
-                        <div key={n.id} className={`p-4 border-b border-line last:border-b-0 hover:bg-paper-dim/50 cursor-pointer transition-colors ${n.unread ? 'bg-seal/5' : ''}`}>
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="text-xs font-bold text-ink">{n.title}</span>
-                            <span className="text-[10px] text-slate font-medium">{n.time}</span>
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-slate text-sm">No new alerts</div>
+                      ) : (
+                        notifications.map(n => (
+                          <div key={n.id} onClick={() => !n.read && markAsRead(n.id)} className={`p-4 border-b border-line last:border-b-0 hover:bg-[#FAFAFA] transition-colors ${!n.read ? 'bg-seal/5 cursor-pointer' : ''}`}>
+                            <div className="flex justify-between items-start mb-1">
+                              <span className={`text-xs font-bold ${!n.read ? 'text-ink' : 'text-slate'}`}>{n.title}</span>
+                              <span className="text-[10px] text-slate font-medium whitespace-nowrap ml-2">
+                                {new Date(n.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate">{n.desc}</p>
                           </div>
-                          <p className="text-xs text-slate">{n.desc}</p>
-                        </div>
-                      ))}
+                        ))
+                      )}
                     </div>
                   </motion.div>
                 )}

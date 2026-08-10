@@ -82,6 +82,11 @@ const initialAudit = [
   { id: 'evt_5007', docId: 'DOC-88102', userId: 'usr_101', userName: 'Ananya Rao', action: 'SHARE (READ) → usr_105', timestamp: '2026-08-08T15:00:00Z' },
 ];
 
+const initialNotifications = [
+  { id: 'notif_1', userId: 'usr_101', type: 'System', title: 'Ledger Sync', desc: 'EVM ledger state successfully synchronized.', timestamp: new Date(Date.now() - 3600000).toISOString(), read: false },
+  { id: 'notif_2', userId: 'usr_102', type: 'Verification', title: 'Document Verified', desc: 'Case CR-2023-89 verified by Judge', timestamp: new Date(Date.now() - 600000).toISOString(), read: true },
+];
+
 export function getMockData(key, initialData) {
   const stored = localStorage.getItem(`evault_mock_${key}`);
   if (stored) {
@@ -121,6 +126,14 @@ export function getAuditLog() {
 
 export function setAuditLog(data) {
   setMockData('audit', data);
+}
+
+export function getNotifications() {
+  return getMockData('notifications', initialNotifications);
+}
+
+export function setNotifications(data) {
+  setMockData('notifications', data);
 }
 
 export const mockDelay = (ms = 450) => new Promise((r) => setTimeout(r, ms));

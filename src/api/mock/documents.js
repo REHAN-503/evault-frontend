@@ -1,5 +1,6 @@
 import { getDocuments, setDocuments, getAuditLog, setAuditLog, getUsers, mockDelay } from './data';
 import { getCurrentUser } from './auth';
+import { pushNotification } from './notifications';
 
 const UPLOAD_STEPS = [
   'Encrypting file (AES-256, client-side)',
@@ -88,6 +89,13 @@ export async function uploadDocument({ title, caseNo, file }, onStep) {
     timestamp: doc.updatedAt,
   }, ...audit]);
 
+  pushNotification({
+    userId: null,
+    type: 'Document',
+    title: 'New Document Registered',
+    desc: `Document ${docId} has been successfully secured on the registry.`
+  });
+
   return doc;
 }
 
@@ -122,6 +130,14 @@ export async function grantAccess(docId, userId, permission = 'READ') {
     action: `SHARE (${permission}) → ${userId}`,
     timestamp: new Date().toISOString(),
   }, ...audit]);
+
+  pushNotification({
+    userId,
+    type: 'Access',
+    title: 'Access Granted',
+    desc: `You have been granted ${permission} access to document ${docId}.`
+  });
+
   return { ok: true };
 }
 

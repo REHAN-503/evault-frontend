@@ -1,38 +1,57 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { login } from '../api/auth';
+import { login, register } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import Seal from '../components/Seal';
-import { Shield, ChevronRight } from 'lucide-react';
-
-const ROLES = [
-  { id: 'lawyer', title: 'Counsel / Legal', desc: 'Manage case records' },
-  { id: 'judge', title: 'Court / Judge', desc: 'Verify and review' },
-  { id: 'admin', title: 'Registry Admin', desc: 'System governance' },
-  { id: 'client', title: 'Client Access', desc: 'View shared records' },
-];
+import { Shield, ArrowRight, Lock } from 'lucide-react';
 
 export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [role, setRole] = useState(location.state?.role || null);
+  
+  const [view, setView] = useState('login'); // 'login' | 'register' | 'success'
+  
+  // Login State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  // Register State
+  const [regForm, setRegForm] = useState({ fullName: '', email: '', phone: '', password: '', confirm: '' });
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleSubmit(e) {
+  async function handleLogin(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const { user } = await login({ email, password, role });
+      const { user } = await login({ email, password });
       setUser(user);
       navigate(`/${user.role}`);
     } catch (err) {
-      setError(err.message || 'Could not sign in');
+      setError(err.message || 'Authentication failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    if (regForm.password !== regForm.confirm) {
+      setError('Passwords do not match');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    try {
+      // By default, public registration creates a pending client account
+      await register({ ...regForm, role: 'client', status: 'pending' });
+      setView('success');
+    } catch (err) {
+      setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -67,7 +86,7 @@ export default function Login() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-4xl font-display font-medium leading-tight mb-4"
           >
-            Secure Legal Records Management
+            Institutional Legal Records
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -93,67 +112,30 @@ export default function Login() {
         <div className="flex-1 flex items-center justify-center p-6 md:p-12">
           <div className="w-full max-w-md">
             <AnimatePresence mode="wait">
-              {!role ? (
-                <motion.div
-                  key="roles"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h1 className="text-3xl font-display font-semibold tracking-tight mb-2">Access Portal</h1>
-                  <p className="text-slate mb-8">Select your designated registry role to proceed.</p>
-                  
-                  <div className="space-y-3">
-                    {ROLES.map((r, i) => (
-                      <motion.button
-                        key={r.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        onClick={() => setRole(r.id)}
-                        className="w-full group flex items-center justify-between rounded-lg border border-line bg-white p-4 text-left hover:border-seal hover:shadow-md transition-all duration-300"
-                      >
-                        <div>
-                          <span className="block font-medium text-ink mb-0.5 group-hover:text-seal transition-colors">{r.title}</span>
-                          <span className="block text-xs text-slate">{r.desc}</span>
-                        </div>
-                        <ChevronRight size={18} className="text-line group-hover:text-seal group-hover:translate-x-1 transition-all" />
-                      </motion.button>
-                    ))}
-                  </div>
-                </motion.div>
-              ) : (
+              {view === 'login' && (
                 <motion.form
-                  key="form"
+                  key="login"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  onSubmit={handleSubmit}
-                  className="bg-white p-8 rounded-xl border border-line shadow-sm relative overflow-hidden"
+                  onSubmit={handleLogin}
                 >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-seal to-verified" />
-                  
-                  <button type="button" onClick={() => setRole(null)} className="text-xs font-medium text-slate hover:text-ink mb-6 flex items-center gap-1 transition-colors">
-                    &larr; Back to roles
-                  </button>
-                  
-                  <div className="mb-8">
-                    <h1 className="text-2xl font-display font-semibold tracking-tight">Sign In</h1>
-                    <p className="text-sm text-slate mt-1">As {ROLES.find((r) => r.id === role)?.title}</p>
+                  <div className="mb-10">
+                    <h1 className="text-3xl font-display font-semibold tracking-tight">Secure Sign In</h1>
+                    <p className="text-sm text-slate mt-2">Access the legal records portal</p>
                   </div>
 
                   <div className="space-y-5">
                     <div>
-                      <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Work Email</label>
+                      <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Email / User ID</label>
                       <input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-md border border-line bg-paper-dim px-4 py-2.5 text-sm focus:bg-white focus:border-seal focus:shadow-sm outline-none transition-all duration-200"
-                        placeholder="user@registry.gov"
+                        className="w-full rounded-md border border-line bg-white px-4 py-3 text-sm focus:border-seal focus:shadow-sm outline-none transition-all duration-200"
+                        placeholder="user@registry.gov.in"
                       />
                     </div>
                     <div>
@@ -163,14 +145,14 @@ export default function Login() {
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full rounded-md border border-line bg-paper-dim px-4 py-2.5 text-sm focus:bg-white focus:border-seal focus:shadow-sm outline-none transition-all duration-200"
+                        className="w-full rounded-md border border-line bg-white px-4 py-3 text-sm focus:border-seal focus:shadow-sm outline-none transition-all duration-200"
                         placeholder="••••••••"
                       />
                     </div>
                   </div>
 
                   {error && (
-                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-3 bg-maroon/10 border border-maroon/20 rounded-md text-sm text-maroon-dark">
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mt-5 p-3 bg-maroon/10 border border-maroon/20 rounded-md text-sm text-maroon-dark">
                       {error}
                     </motion.div>
                   )}
@@ -178,11 +160,100 @@ export default function Login() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full mt-6 rounded-md bg-ink hover:bg-ink-2 text-white py-3 text-sm font-semibold transition-colors disabled:opacity-50 shadow-sm"
+                    className="w-full mt-8 rounded-md bg-ink hover:bg-ink-2 text-white py-3.5 text-sm font-semibold transition-colors disabled:opacity-50 shadow-sm flex items-center justify-center gap-2"
                   >
-                    {loading ? 'Authenticating...' : 'Sign In to Registry'}
+                    {loading ? 'Authenticating...' : (
+                      <>Sign In <ArrowRight size={16} /></>
+                    )}
                   </button>
+                  
+                  <div className="mt-8 pt-8 border-t border-line text-center">
+                    <p className="text-sm text-slate">
+                      Don't have an account?{' '}
+                      <button type="button" onClick={() => { setError(''); setView('register'); }} className="font-semibold text-ink hover:text-seal transition-colors">
+                        Request Access
+                      </button>
+                    </p>
+                  </div>
                 </motion.form>
+              )}
+
+              {view === 'register' && (
+                <motion.form
+                  key="register"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={handleRegister}
+                >
+                  <div className="mb-8">
+                    <h1 className="text-3xl font-display font-semibold tracking-tight">Request Access</h1>
+                    <p className="text-sm text-slate mt-2">Client onboarding for shared records</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Full Name</label>
+                      <input type="text" required value={regForm.fullName} onChange={(e) => setRegForm({...regForm, fullName: e.target.value})} className="w-full rounded-md border border-line bg-white px-4 py-2.5 text-sm focus:border-seal outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Email</label>
+                      <input type="email" required value={regForm.email} onChange={(e) => setRegForm({...regForm, email: e.target.value})} className="w-full rounded-md border border-line bg-white px-4 py-2.5 text-sm focus:border-seal outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Phone Number (Optional)</label>
+                      <input type="tel" value={regForm.phone} onChange={(e) => setRegForm({...regForm, phone: e.target.value})} className="w-full rounded-md border border-line bg-white px-4 py-2.5 text-sm focus:border-seal outline-none" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Password</label>
+                        <input type="password" required value={regForm.password} onChange={(e) => setRegForm({...regForm, password: e.target.value})} className="w-full rounded-md border border-line bg-white px-4 py-2.5 text-sm focus:border-seal outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Confirm</label>
+                        <input type="password" required value={regForm.confirm} onChange={(e) => setRegForm({...regForm, confirm: e.target.value})} className="w-full rounded-md border border-line bg-white px-4 py-2.5 text-sm focus:border-seal outline-none" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mt-5 p-3 bg-maroon/10 border border-maroon/20 rounded-md text-sm text-maroon-dark">
+                      {error}
+                    </motion.div>
+                  )}
+
+                  <div className="mt-8 flex gap-3">
+                    <button type="button" onClick={() => { setError(''); setView('login'); }} className="px-6 py-3 text-sm font-semibold text-slate hover:text-ink transition-colors">
+                      Cancel
+                    </button>
+                    <button type="submit" disabled={loading} className="flex-1 rounded-md bg-ink hover:bg-ink-2 text-white py-3 text-sm font-semibold transition-colors disabled:opacity-50 shadow-sm flex justify-center items-center gap-2">
+                      {loading ? 'Submitting...' : (
+                        <>Submit Request <Lock size={14} /></>
+                      )}
+                    </button>
+                  </div>
+                </motion.form>
+              )}
+
+              {view === 'success' && (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center"
+                >
+                  <div className="w-16 h-16 bg-verified/10 border-2 border-verified text-verified rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Shield size={32} />
+                  </div>
+                  <h2 className="text-2xl font-display font-semibold mb-2">Registration Submitted</h2>
+                  <p className="text-slate text-sm mb-8 leading-relaxed max-w-sm mx-auto">
+                    Your request has been submitted for administrative review. Your account will become available after a registry administrator approves it.
+                  </p>
+                  <button onClick={() => setView('login')} className="rounded-md border border-line bg-white px-8 py-2.5 text-sm font-semibold text-ink hover:border-seal hover:shadow-sm transition-all">
+                    Return to Login
+                  </button>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
