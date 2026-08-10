@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper text-ink font-body antialiased;
+  }
+  ::selection {
+    @apply bg-seal/30;
+  }
+  *:focus-visible {
+    outline: 2px solid #A8783C;
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-feature-tab {
+    font-feature-settings: 'tnum' 1;
+  }
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: theme('backgroundImage.grain');
+    pointer-events: none;
+    z-index: 999;
+  }
+  .hairline {
+    border-color: theme('colors.line');
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
