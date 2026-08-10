@@ -4,12 +4,11 @@ import PortalShell from '../components/PortalShell';
 import { register } from '../api/auth';
 import { grantAccess } from '../api/documents';
 import { getSystemStatus, getSystemInfo } from '../api/system';
-import { StatusPill } from '../components/Atoms';
-import { Server, Database, Activity, UserPlus, Key, ShieldCheck, HardDrive, BarChart3 } from 'lucide-react';
+import { Server, Database, Activity, UserPlus, Key, HardDrive, BarChart3, Wifi, Cpu, Layers } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 
-// Mock chart data
+// Mock chart data representing API / Ledger traffic
 const loadData = [
   { time: '08:00', reqs: 420 },
   { time: '09:00', reqs: 850 },
@@ -68,173 +67,155 @@ export default function AdminDashboard() {
 
   return (
     <PortalShell role="admin" user={user}>
-      {/* Enterprise Page Header */}
-      <div className="mb-6 bg-white border border-line rounded-lg shadow-sm p-6 flex flex-col md:flex-row md:items-start justify-between gap-6 relative overflow-hidden">
-        <div className="relative z-10">
-          <h1 className="text-2xl font-display font-semibold tracking-tight text-ink mb-2">Registry Infrastructure</h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="flex items-center gap-1.5 text-verified"><div className="w-2 h-2 rounded-full bg-verified"></div> Network Operational</span>
-            <span className="text-line">|</span>
-            <span className="flex items-center gap-1.5 text-slate font-mono text-xs"><Server size={14} className="text-slate-light" /> Node ID: eVR-0x74B9</span>
+      
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        <div>
+          <h1 className="text-3xl font-display font-semibold tracking-tight text-ink mb-2">Registry Infrastructure</h1>
+          <p className="text-sm text-slate max-w-2xl">
+            Monitor blockchain node health, manage storage infrastructure, and provision cryptographic identities.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-verified/10 border border-verified/20 text-verified px-3 py-1.5 rounded text-xs font-bold uppercase tracking-widest">
+            <span className="w-2 h-2 rounded-full bg-verified animate-pulse"></span>
+            Network Active
+          </div>
+          <div className="bg-white border border-line rounded px-3 py-1.5 flex items-center gap-2 text-xs font-mono text-slate shadow-sm">
+            <Server size={14} /> Node: eVR-0x74B9
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Pane - System Status */}
-        <div className="w-full lg:w-1/3 space-y-6">
-          <div className="bg-white border border-line rounded-lg shadow-sm p-5">
-            <h3 className="text-xs font-bold text-slate uppercase tracking-wider mb-5 flex items-center gap-2"><Activity size={14}/> Core Services</h3>
-            {status ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <span className="text-sm font-medium text-ink flex items-center gap-2">
-                    <Server size={14} className="text-slate-light" /> API Gateway
-                  </span>
-                  <StatusPill status={status.status === 'ok' ? 'verified' : 'pending'} />
-                </div>
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <span className="text-sm font-medium text-ink flex items-center gap-2">
-                    <Database size={14} className="text-slate-light" /> Registry DB
-                  </span>
-                  <StatusPill status={status.services?.database === 'connected' ? 'verified' : 'pending'} />
-                </div>
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <span className="text-sm font-medium text-ink flex items-center gap-2">
-                    <ShieldCheck size={14} className="text-slate-light" /> EVM Ledger
-                  </span>
-                  <StatusPill status={status.services?.blockchain === 'operational' ? 'verified' : 'pending'} />
-                </div>
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <span className="text-sm font-medium text-ink flex items-center gap-2">
-                    <HardDrive size={14} className="text-slate-light" /> IPFS Nodes
-                  </span>
-                  <StatusPill status={status.services?.storage === 'operational' ? 'verified' : 'pending'} />
-                </div>
+      <div className="flex flex-col xl:flex-row gap-8">
+        
+        {/* Left Column: Metrics & Traffic */}
+        <div className="w-full xl:w-2/3 flex flex-col gap-6">
+          
+          {/* System Health Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white border border-line rounded-lg shadow-sm p-4">
+              <div className="flex items-center gap-2 mb-2 text-slate">
+                <Wifi size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">API Gateway</span>
               </div>
-            ) : (
-              <div className="animate-pulse space-y-4">
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="flex justify-between pb-3 border-b border-line">
-                    <div className="h-4 w-24 bg-paper-dim rounded"></div>
-                    <div className="h-5 w-16 bg-paper-dim rounded-full"></div>
-                  </div>
-                ))}
+              <p className="text-xl font-semibold text-ink mb-1">{status?.api || 'Operational'}</p>
+              <p className="text-[10px] text-verified">99.99% Uptime</p>
+            </div>
+            <div className="bg-white border border-line rounded-lg shadow-sm p-4">
+              <div className="flex items-center gap-2 mb-2 text-slate">
+                <Database size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">PostgreSQL DB</span>
               </div>
-            )}
-            
-            {info && (
-              <div className="mt-6 pt-4 border-t border-line">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[10px] uppercase font-bold text-slate tracking-widest mb-1">Total Records</p>
-                    <p className="text-xl font-display font-semibold">{info.metrics?.totalDocuments || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase font-bold text-slate tracking-widest mb-1">Users</p>
-                    <p className="text-xl font-display font-semibold">{info.metrics?.registeredUsers || 0}</p>
-                  </div>
-                </div>
+              <p className="text-xl font-semibold text-ink mb-1">{status?.db || 'Connected'}</p>
+              <p className="text-[10px] text-slate">14ms latency</p>
+            </div>
+            <div className="bg-white border border-line rounded-lg shadow-sm p-4">
+              <div className="flex items-center gap-2 mb-2 text-slate">
+                <Layers size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">Blockchain Node</span>
               </div>
-            )}
+              <p className="text-xl font-semibold text-ink mb-1">{status?.chain || 'Synced'}</p>
+              <p className="text-[10px] text-slate">Block #149021</p>
+            </div>
+            <div className="bg-white border border-line rounded-lg shadow-sm p-4">
+              <div className="flex items-center gap-2 mb-2 text-slate">
+                <HardDrive size={14} /> <span className="text-[10px] font-bold uppercase tracking-widest">IPFS Storage</span>
+              </div>
+              <p className="text-xl font-semibold text-ink mb-1">{status?.ipfs || 'Online'}</p>
+              <p className="text-[10px] text-slate">1.2 TB Utilized</p>
+            </div>
           </div>
-        </div>
 
-        {/* Right Pane - Admin Actions */}
-        <div className="w-full lg:w-2/3 flex flex-col gap-6">
-          {/* Analytics Chart */}
-          <div className="bg-white border border-line rounded-lg shadow-sm p-5 h-[280px] flex flex-col">
-            <div className="flex items-center justify-between mb-4">
+          {/* Traffic Chart */}
+          <div className="bg-white border border-line rounded-lg shadow-sm overflow-hidden flex-1">
+            <div className="px-6 py-4 border-b border-line bg-[#FAFAFA] flex justify-between items-center">
               <h3 className="text-xs font-bold text-slate uppercase tracking-wider flex items-center gap-2">
-                <BarChart3 size={14} /> System Traffic
+                <BarChart3 size={14} /> Network Traffic (Requests/hr)
               </h3>
             </div>
-            <div className="flex-1 w-full">
+            <div className="p-6 h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={loadData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }} barSize={32}>
-                  <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} />
+                <BarChart data={loadData}>
+                  <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748B' }} dx={-10} />
                   <Tooltip 
                     cursor={{ fill: '#F1F5F9' }}
-                    contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    itemStyle={{ color: '#0F172A', fontSize: '12px', fontWeight: '600' }}
+                    contentStyle={{ backgroundColor: '#fff', borderRadius: '4px', border: '1px solid #E2E8F0', padding: '8px' }}
+                    itemStyle={{ color: '#0F172A', fontSize: '12px', fontWeight: '700' }}
                   />
-                  <Bar dataKey="reqs" fill="#1E3A8A" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reqs" fill="#0F172A" radius={[4, 4, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
+          
+        </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Add User */}
-            <div className="bg-white border border-line rounded-lg shadow-sm">
-              <div className="px-5 py-4 border-b border-line bg-paper-dim/30">
-                <h2 className="font-semibold text-sm text-ink flex items-center gap-2"><UserPlus size={16} className="text-slate-light" /> Provision Account</h2>
-              </div>
-              <div className="p-5">
-                <form onSubmit={handleRegister} className="flex flex-col gap-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Full Name</label>
-                    <input required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                      className="w-full rounded-md border border-line bg-paper-dim px-3 py-2 text-sm focus:bg-white focus:border-seal outline-none transition-colors" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[11px] font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Email</label>
-                      <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full rounded-md border border-line bg-paper-dim px-3 py-2 text-sm focus:bg-white focus:border-seal outline-none transition-colors" />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Password</label>
-                      <input required type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                        className="w-full rounded-md border border-line bg-paper-dim px-3 py-2 text-sm focus:bg-white focus:border-seal outline-none transition-colors" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Access Level</label>
-                    <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-                      className="w-full rounded-md border border-line bg-paper-dim px-3 py-2 text-sm focus:bg-white focus:border-seal outline-none transition-colors">
-                      <option value="LAWYER">Counsel / Filer</option>
-                      <option value="JUDGE">Judge / Court</option>
-                      <option value="ADMIN">Registry Admin</option>
-                      <option value="CLIENT">Client Access</option>
-                    </select>
-                  </div>
-                  <div className="pt-2 border-t border-line mt-2">
-                    <button disabled={busy} className="w-full rounded-md bg-ink text-white px-6 py-2 text-sm font-medium hover:bg-ink-2 transition-colors shadow-sm disabled:opacity-50">
-                      Create Account
-                    </button>
-                  </div>
-                </form>
-              </div>
+        {/* Right Column: Provisioning & Tools */}
+        <div className="w-full xl:w-1/3 flex flex-col gap-6 shrink-0">
+          
+          {/* Identity Provisioning Form */}
+          <div className="bg-white border border-line rounded-lg shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-line bg-[#FAFAFA]">
+              <h3 className="text-xs font-bold text-slate uppercase tracking-wider flex items-center gap-2">
+                <UserPlus size={14} /> Identity Provisioning
+              </h3>
             </div>
+            <div className="p-5">
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-slate mb-1">Full Legal Name</label>
+                  <input required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    className="w-full text-sm border border-line rounded px-3 py-2 bg-paper-dim focus:bg-white focus:border-ink outline-none transition-colors" placeholder="e.g. Ananya Rao" />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-slate mb-1">Institutional Email</label>
+                  <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className="w-full text-sm border border-line rounded px-3 py-2 bg-paper-dim focus:bg-white focus:border-ink outline-none transition-colors" placeholder="user@registry.gov.in" />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-slate mb-1">Network Role</label>
+                  <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    className="w-full text-sm border border-line rounded px-3 py-2 bg-paper-dim focus:bg-white focus:border-ink outline-none transition-colors">
+                    <option value="LAWYER">Legal Counsel</option>
+                    <option value="JUDGE">Hon. Court</option>
+                    <option value="CLIENT">Client</option>
+                    <option value="ADMIN">Registry Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-slate mb-1">Temporary Password</label>
+                  <input required type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className="w-full text-sm border border-line rounded px-3 py-2 bg-paper-dim focus:bg-white focus:border-ink outline-none transition-colors" placeholder="••••••••" />
+                </div>
+                <button type="submit" disabled={busy} className="w-full rounded bg-ink text-white px-4 py-2.5 text-sm font-semibold hover:bg-ink/90 transition-colors disabled:opacity-50 shadow-sm mt-2">
+                  Provision Identity
+                </button>
+              </form>
+            </div>
+          </div>
 
-            {/* Manual Access Granting */}
-            <div className="bg-white border border-line rounded-lg shadow-sm">
-              <div className="px-5 py-4 border-b border-line bg-paper-dim/30">
-                <h2 className="font-semibold text-sm text-ink flex items-center gap-2"><Key size={16} className="text-slate-light" /> Override Grant</h2>
-              </div>
-              <div className="p-5">
-                <form onSubmit={handleGrant} className="flex flex-col gap-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-ink-2 mb-1.5 uppercase tracking-wide">Document ID</label>
+          {/* Root Access Override */}
+          <div className="bg-white border border-line rounded-lg shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-line bg-[#FAFAFA]">
+              <h3 className="text-xs font-bold text-slate uppercase tracking-wider flex items-center gap-2">
+                <Key size={14} /> Root Access Override
+              </h3>
+            </div>
+            <div className="p-5">
+              <form onSubmit={handleGrant} className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="flex-1">
                     <input required value={grant.docId} onChange={(e) => setGrant({ ...grant, docId: e.target.value })}
-                      placeholder="DOC-..."
-                      className="w-full rounded-md border border-line bg-paper-dim px-3 py-2 text-sm focus:bg-white focus:border-seal outline-none transition-colors font-mono" />
+                      className="w-full text-sm font-mono border border-line rounded px-3 py-2 bg-paper-dim focus:bg-white focus:border-ink outline-none transition-colors" placeholder="DOC-ID" />
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-ink-2 mb-1.5 uppercase tracking-wide">User ID</label>
+                  <div className="flex-1">
                     <input required value={grant.userId} onChange={(e) => setGrant({ ...grant, userId: e.target.value })}
-                      placeholder="usr_..."
-                      className="w-full rounded-md border border-line bg-paper-dim px-3 py-2 text-sm focus:bg-white focus:border-seal outline-none transition-colors font-mono" />
+                      className="w-full text-sm font-mono border border-line rounded px-3 py-2 bg-paper-dim focus:bg-white focus:border-ink outline-none transition-colors" placeholder="USER-ID" />
                   </div>
-                  <div className="pt-2 border-t border-line mt-2">
-                    <button disabled={busy} className="w-full rounded-md border border-seal text-seal px-6 py-2 text-sm font-medium hover:bg-seal hover:text-white transition-colors shadow-sm disabled:opacity-50">
-                      Grant Permission
-                    </button>
-                  </div>
-                </form>
-              </div>
+                </div>
+                <button type="submit" disabled={busy} className="w-full rounded bg-white border border-line text-ink px-4 py-2 text-sm font-semibold hover:bg-slate/5 transition-colors disabled:opacity-50 shadow-sm">
+                  Force Grant Read Access
+                </button>
+              </form>
             </div>
           </div>
 

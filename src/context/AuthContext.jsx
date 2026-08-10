@@ -8,8 +8,11 @@ export function AuthProvider({ children }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setUser(getCurrentUser());
-    setReady(true);
+    (async () => {
+      const u = await getCurrentUser();
+      setUser(u);
+      setReady(true);
+    })();
   }, []);
 
   return (
