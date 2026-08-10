@@ -29,3 +29,8 @@ export async function getSystemInfo() {
     environment: 'development'
   };
 }
+
+export async function listUsers() {
+  await mockDelay(200);
+  return getUsers();
+}

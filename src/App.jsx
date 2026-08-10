@@ -31,6 +31,7 @@ export default function App() {
           <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AuditPage role="admin" /></ProtectedRoute>} />
 
           <Route path="/client" element={<ProtectedRoute role="client"><ClientDashboard /></ProtectedRoute>} />
+          <Route path="/client/audit" element={<ProtectedRoute role="client"><AuditPage role="client" /></ProtectedRoute>} />
 
           <Route path="/documents/:docId" element={<ProtectedRoute><DocumentDetail /></ProtectedRoute>} />
           

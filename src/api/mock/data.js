@@ -26,6 +26,7 @@ const initialDocuments = [
     size: '2.4 MB',
     version: 3,
     updatedAt: '2026-08-06T10:12:00Z',
+    sharedWith: ['usr_105'],
   },
   {
     docId: 'DOC-88190',
@@ -39,13 +40,46 @@ const initialDocuments = [
     size: '1.1 MB',
     version: 2,
     updatedAt: '2026-08-04T09:02:00Z',
-  }
+    sharedWith: [],
+  },
+  {
+    docId: 'DOC-88102',
+    title: 'Bail Application — Sharma vs. State',
+    caseNo: 'CRL/2025/1183',
+    ownerId: 'usr_101',
+    ownerName: 'Ananya Rao',
+    hash: '0x4a8c2f1e9b7d6035e8f1a2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2',
+    cid: 'bafybeid8n3l5k7m9p1q3s5u7w9y1a3c5e7g9i1k3m5o7q9s1u3w5y7a9c1',
+    status: 'pending',
+    size: '0.8 MB',
+    version: 1,
+    updatedAt: '2026-08-08T14:30:00Z',
+    sharedWith: ['usr_105'],
+  },
+  {
+    docId: 'DOC-88055',
+    title: 'Court Order — Interim Injunction',
+    caseNo: 'CIV/2026/0312',
+    ownerId: 'usr_104',
+    ownerName: 'Priya Nair',
+    hash: '0x7b3e9f2a1c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4',
+    cid: 'bafybeie9o4m6n8p0r2t4v6x8z0b2d4f6h8j0l2n4p6r8t0v2x4z6b8d0f2',
+    status: 'flagged',
+    size: '1.6 MB',
+    version: 1,
+    updatedAt: '2026-08-02T16:45:00Z',
+    sharedWith: [],
+  },
 ];
 
 const initialAudit = [
   { id: 'evt_5001', docId: 'DOC-88213', userId: 'usr_101', userName: 'Ananya Rao', action: 'DocumentAdded', timestamp: '2026-08-01T11:00:00Z' },
+  { id: 'evt_5002', docId: 'DOC-88213', userId: 'usr_101', userName: 'Ananya Rao', action: 'SHARE (READ) → usr_105', timestamp: '2026-08-02T09:30:00Z' },
+  { id: 'evt_5003', docId: 'DOC-88102', userId: 'usr_101', userName: 'Ananya Rao', action: 'DocumentAdded', timestamp: '2026-08-08T14:30:00Z' },
   { id: 'evt_5004', docId: 'DOC-88213', userId: 'usr_101', userName: 'Ananya Rao', action: 'DocumentUpdated (v3)', timestamp: '2026-08-06T10:12:00Z' },
   { id: 'evt_5005', docId: 'DOC-88190', userId: 'usr_104', userName: 'Priya Nair', action: 'DocumentAdded', timestamp: '2026-08-04T09:02:00Z' },
+  { id: 'evt_5006', docId: 'DOC-88055', userId: 'usr_104', userName: 'Priya Nair', action: 'DocumentAdded', timestamp: '2026-08-02T16:45:00Z' },
+  { id: 'evt_5007', docId: 'DOC-88102', userId: 'usr_101', userName: 'Ananya Rao', action: 'SHARE (READ) → usr_105', timestamp: '2026-08-08T15:00:00Z' },
 ];
 
 export function getMockData(key, initialData) {
@@ -89,5 +123,4 @@ export function setAuditLog(data) {
   setMockData('audit', data);
 }
 
-// Small helper so mocked functions "feel" like network calls (latency)
 export const mockDelay = (ms = 450) => new Promise((r) => setTimeout(r, ms));

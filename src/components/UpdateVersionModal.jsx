@@ -1,16 +1,31 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateDocument } from '../api/documents';
-import { UploadCloud, CheckCircle2, FileText, Loader2, X, FileSignature } from 'lucide-react';
+import { UploadCloud, FileText, Loader2, X, FileSignature } from 'lucide-react';
+import { HashChip, PipelineStepper, ProofSeal } from './Atoms';
+import { toast } from 'sonner';
+
+const UPDATE_STEPS = [
+  'Encrypting new version (AES-256)',
+  'Authenticating request',
+  'Uploading file to IPFS',
+  'Updating DocumentRegistryContract',
+  'DocumentUpdated event confirmed',
+];
 
 export default function UpdateVersionModal({ open, onClose, docId, onUpdated }) {
   const [file, setFile] = useState(null);
   const [stepLog, setStepLog] = useState([]);
-  const [phase, setPhase] = useState('form'); // form | running | done
+  const [currentStep, setCurrentStep] = useState(-1);
+  const [phase, setPhase] = useState('form');
   const [result, setResult] = useState(null);
 
   function reset() {
-    setFile(null); setStepLog([]); setPhase('form'); setResult(null);
+    setFile(null);
+    setStepLog([]);
+    setCurrentStep(-1);
+    setPhase('form');
+    setResult(null);
   }
 
   async function handleSubmit(e) {
@@ -18,15 +33,17 @@ export default function UpdateVersionModal({ open, onClose, docId, onUpdated }) 
     if (!file) return;
     setPhase('running');
     setStepLog([]);
+    setCurrentStep(0);
     try {
       const doc = await updateDocument(docId, { file }, (i, label) => {
-        setStepLog((prev) => [...prev, label]);
+        setCurrentStep(i);
+        setStepLog((prev) => (prev.includes(label) ? prev : [...prev, label]));
       });
       setResult(doc);
       setPhase('done');
       onUpdated?.(doc);
-    } catch(err) {
-      alert("Failed to update version: " + err.message);
+    } catch (err) {
+      toast.error('Failed to update version: ' + err.message);
       reset();
       onClose();
     }
@@ -43,7 +60,7 @@ export default function UpdateVersionModal({ open, onClose, docId, onUpdated }) 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-[2px] px-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm px-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -55,14 +72,16 @@ export default function UpdateVersionModal({ open, onClose, docId, onUpdated }) 
           exit={{ opacity: 0, y: 10, scale: 0.97 }}
           transition={{ duration: 0.25 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-[480px] rounded-xl bg-paper shadow-2xl overflow-hidden"
+          className="w-full max-w-[480px] rounded-xl bg-white shadow-2xl overflow-hidden border border-line"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="update-modal-title"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-line bg-white/50">
-            <h3 className="font-display text-lg font-medium flex items-center gap-2">
-              <FileSignature size={18} className="text-seal"/> Update Version
+          <div className="flex items-center justify-between px-6 py-4 border-b border-line bg-paper-dim/50">
+            <h3 id="update-modal-title" className="font-display text-lg font-semibold text-ink flex items-center gap-2">
+              <FileSignature size={18} className="text-seal" /> Update Version
             </h3>
-            <button onClick={handleClose} disabled={phase === 'running'} className="text-slate hover:text-ink disabled:opacity-50 transition-colors">
+            <button type="button" onClick={handleClose} disabled={phase === 'running'} className="text-slate hover:text-ink disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-seal/30 rounded-md p-1" aria-label="Close">
               <X size={18} />
             </button>
           </div>
@@ -71,85 +90,61 @@ export default function UpdateVersionModal({ open, onClose, docId, onUpdated }) 
             {phase === 'form' && (
               <form onSubmit={handleSubmit}>
                 <p className="text-sm text-slate mb-6">
-                  Upload a new file. It will be encrypted and appended to the document's version history automatically.
+                  Upload a new file. It will be encrypted client-side and appended to the document&apos;s on-chain version history.
                 </p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-slate mb-1.5 font-medium">New File</label>
-                    <label className="flex flex-col items-center justify-center w-full h-32 rounded-lg border border-dashed border-slate/40 bg-white/50 hover:bg-white/80 transition-colors cursor-pointer group">
-                      <input required type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-                      {file ? (
-                        <div className="flex flex-col items-center gap-2 text-ink">
-                          <FileText size={24} className="text-seal" />
-                          <span className="text-sm font-medium">{file.name}</span>
-                          <span className="text-xs text-slate">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 text-slate group-hover:text-ink transition-colors">
-                          <UploadCloud size={24} />
-                          <span className="text-sm">Click or drag new version to upload</span>
-                          <span className="text-xs text-slate/70">PDF, JPG, PNG up to 50MB</span>
-                        </div>
-                      )}
-                    </label>
-                  </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-slate mb-1.5 font-bold">New File</label>
+                  <label className="flex flex-col items-center justify-center w-full h-32 rounded-lg border border-dashed border-slate/40 bg-paper-dim hover:bg-slate/5 transition-colors cursor-pointer group">
+                    <input required type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                    {file ? (
+                      <div className="flex flex-col items-center gap-2 text-ink">
+                        <FileText size={24} className="text-seal" />
+                        <span className="text-sm font-medium">{file.name}</span>
+                        <span className="text-xs text-slate">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-slate group-hover:text-ink transition-colors">
+                        <UploadCloud size={24} />
+                        <span className="text-sm">Click or drag new version to upload</span>
+                      </div>
+                    )}
+                  </label>
                 </div>
 
                 <div className="flex items-center justify-end gap-3 mt-8">
                   <button type="button" onClick={handleClose} className="px-4 py-2 text-sm text-slate hover:text-ink font-medium">Cancel</button>
-                  <button type="submit" disabled={!file} className="rounded-md bg-ink text-paper px-6 py-2 text-sm font-medium hover:bg-ink-2 transition-colors disabled:opacity-50">
+                  <button type="submit" disabled={!file} className="rounded-md bg-ink text-white px-6 py-2 text-sm font-medium hover:bg-ink-2 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-seal/30">
                     Upload & Update
                   </button>
                 </div>
               </form>
             )}
 
-            {phase !== 'form' && (
-              <div className="py-2">
-                <div className="flex items-center gap-3 mb-6">
-                  {phase === 'running' ? (
-                    <Loader2 className="animate-spin text-seal" size={24} />
-                  ) : (
-                    <CheckCircle2 className="text-verified" size={24} />
-                  )}
-                  <h3 className="font-display text-xl">
-                    {phase === 'running' ? 'Uploading New Version...' : 'Update Complete'}
-                  </h3>
+            {phase === 'running' && (
+              <div>
+                <div className="flex items-center gap-4 mb-6">
+                  <ProofSeal status="pending" size={40} showLabel={false} />
+                  <h3 className="font-display text-xl font-semibold text-ink">Uploading New Version…</h3>
                 </div>
+                <PipelineStepper steps={UPDATE_STEPS} currentStep={currentStep} stepLog={stepLog} />
+              </div>
+            )}
 
-                <div className="space-y-4 mb-8">
-                  {stepLog.map((s, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex items-start gap-3 text-sm text-ink/80"
-                    >
-                      <CheckCircle2 size={16} className="text-verified mt-0.5 shrink-0" />
-                      <span>{s}</span>
-                    </motion.div>
-                  ))}
+            {phase === 'done' && result && (
+              <div>
+                <div className="flex items-center gap-4 mb-6">
+                  <ProofSeal status="verified" size={40} />
+                  <h3 className="font-display text-xl font-semibold text-ink">Update Complete</h3>
                 </div>
-
-                {phase === 'done' && result && (
-                  <div className="rounded-lg border border-line bg-white/70 p-4 flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-verified/10 flex items-center justify-center shrink-0">
-                      <FileText size={20} className="text-verified" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm truncate">Version {result.version} Registered</p>
-                      <p className="text-xs text-slate font-mono mt-0.5 truncate">{result.hash}</p>
-                    </div>
-                  </div>
-                )}
-
-                {phase === 'done' && (
-                  <div className="flex justify-end mt-8">
-                    <button onClick={handleClose} className="rounded-md bg-ink text-paper px-6 py-2 text-sm font-medium hover:bg-ink-2 transition-colors">
-                      Done
-                    </button>
-                  </div>
-                )}
+                <div className="rounded-xl border border-line bg-paper-dim p-4 space-y-3">
+                  <p className="font-medium text-sm">Version {result.version} registered on ledger</p>
+                  <HashChip value={result.hash} chars={28} />
+                </div>
+                <div className="flex justify-end mt-8">
+                  <button type="button" onClick={handleClose} className="rounded-md bg-ink text-white px-6 py-2 text-sm font-medium hover:bg-ink-2 transition-colors focus:outline-none focus:ring-2 focus:ring-seal/30">
+                    Done
+                  </button>
+                </div>
               </div>
             )}
           </div>

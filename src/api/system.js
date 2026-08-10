@@ -6,3 +6,4 @@ const system = USE_MOCK ? mockSystem : liveSystem;
 
 export const getSystemStatus = system.getSystemStatus;
 export const getSystemInfo = system.getSystemInfo;
+export const listUsers = system.listUsers;

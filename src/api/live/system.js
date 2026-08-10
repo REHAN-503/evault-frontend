@@ -9,3 +9,12 @@ export async function getSystemInfo() {
   const { data } = await client.get('/system/info');
   return data;
 }
+
+export async function listUsers() {
+  try {
+    const { data } = await client.get('/users');
+    return data;
+  } catch {
+    return [];
+  }
+}

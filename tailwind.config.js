@@ -21,6 +21,7 @@ export default {
         verified: {
           DEFAULT: '#059669', // emerald-600
           dark: '#047857',
+          bg: '#ECFDF5',
         },
         maroon: {
           DEFAULT: '#DC2626', // red-600

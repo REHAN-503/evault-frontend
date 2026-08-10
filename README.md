@@ -6,7 +6,7 @@ stack in the architecture doc: **React.js + Tailwind CSS**, talking to a
 microservices**, **Hyperledger Fabric**, **IPFS**, and **PostgreSQL**.
 
 It ships in **mock mode** by default, so the whole app — landing page, login,
-all three portals, upload flow, verification, audit trail — runs and demos
+all four role portals, upload flow, verification, audit trail — runs and demos
 completely standalone, before your teammates' backend, database, or chain are
 even up. Flip one env var when they are, and it's live.
 
@@ -32,14 +32,15 @@ Opens at `http://localhost:5173`. Sign in by selecting a role and using the corr
 3. Set `VITE_USE_MOCK=false`.
 
 That's it — no component code changes. Every function in `src/api/*.js` already
-calls the REST path your Express gateway is expected to expose, and each file
-has the expected route list in a comment at the top:
+calls the REST path your Express gateway is expected to expose. The mock/live
+switch lives **per concern** in each facade file (`auth.js`, `documents.js`,
+`system.js`) — there is no central `src/api/index.js`.
 
 | File | Talks to |
 |---|---|
-| `src/api/auth.js` | `POST /auth/login`, `GET /auth/me` — your JWT/OAuth layer |
-| `src/api/documents.js` | `/documents` routes — wraps `DocumentRegistryContract` + `AccessControlContract` (`recordDocument`, `getDocument`, `getVersionHistory`, `grantAccess`, `revokeAccess`, `checkAccess`) |
-| `src/api/audit.js` | `/audit`, `/users`, `/stats` — wraps `AuditLogContract.getAuditTrail` and user registration |
+| `src/api/auth.js` | `POST /auth/login`, `POST /auth/register`, `GET /auth/me`, `POST /auth/refresh`, `POST /auth/logout` — JWT/OAuth layer |
+| `src/api/documents.js` | `/documents` routes — wraps `DocumentRegistryContract` + `AccessControlContract` + per-document audit via `getDocumentAudit` (`recordDocument`, `getDocument`, `getVersionHistory`, `grantAccess`, `revokeAccess`, `checkAccess`) |
+| `src/api/system.js` | `GET /system/status`, `GET /system/info` — infrastructure health and registry metrics (document counts, audit event totals) |
 
 The upload flow (`uploadDocument` in `documents.js`) narrates the exact 7-step
 pipeline from the architecture doc (encrypt → auth → IPFS → CID → recordDocument
@@ -60,7 +61,7 @@ src/
   context/        auth session
   routes/         role-based route guard
   pages/          Landing, Login, LawyerDashboard, JudgeDashboard, AdminDashboard,
-                  AuditPage (shared), DocumentDetail
+                  ClientDashboard, AuditPage (shared), DocumentDetail
 ```
 
 ## Design notes

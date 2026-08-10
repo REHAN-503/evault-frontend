@@ -15,7 +15,6 @@ export default function ConfirmDeleteModal({ open, onClose, docId, title, role }
     try {
       await deleteDocument(docId);
       onClose();
-      // Navigate back to the portal
       navigate(`/${role?.toLowerCase() || ''}`);
     } catch (err) {
       setError(err.message || 'Failed to delete record');
@@ -28,7 +27,7 @@ export default function ConfirmDeleteModal({ open, onClose, docId, title, role }
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-[2px] px-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm px-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -40,10 +39,15 @@ export default function ConfirmDeleteModal({ open, onClose, docId, title, role }
           exit={{ opacity: 0, y: 10, scale: 0.97 }}
           onClick={(e) => e.stopPropagation()}
           className="w-full max-w-[400px] rounded-xl bg-white shadow-2xl overflow-hidden border border-maroon/20"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
         >
           <div className="flex items-center justify-between px-6 py-4 border-b border-line bg-maroon/5 text-maroon-dark">
-            <h3 className="font-display text-lg font-medium flex items-center gap-2"><AlertTriangle size={18}/> Delete Record</h3>
-            <button onClick={onClose} disabled={loading} className="hover:text-maroon disabled:opacity-50">
+            <h3 id="delete-modal-title" className="font-display text-lg font-semibold flex items-center gap-2">
+              <AlertTriangle size={18} /> Delete Record
+            </h3>
+            <button type="button" onClick={onClose} disabled={loading} className="hover:text-maroon disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-maroon/20 rounded-md p-1" aria-label="Close">
               <X size={18} />
             </button>
           </div>
@@ -52,32 +56,25 @@ export default function ConfirmDeleteModal({ open, onClose, docId, title, role }
             <p className="text-sm text-ink-2 mb-4">
               Are you sure you want to permanently delete the registry record for:
             </p>
-            <p className="font-medium text-ink bg-slate/5 p-3 rounded-md mb-6 border border-line break-words">
-              {title}
-            </p>
-            
+            <p className="font-medium text-ink bg-paper-dim p-3 rounded-md mb-6 border border-line break-words">{title}</p>
+
             <p className="text-xs text-maroon mb-6 leading-relaxed">
               <strong>Warning:</strong> This action cannot be undone. All version history, audit logs, and IPFS references for this document will be unlinked from the registry.
             </p>
 
-            {error && <p className="text-xs text-maroon mb-4 bg-maroon/10 p-2 rounded">{error}</p>}
+            {error && <p className="text-xs text-maroon mb-4 bg-maroon/10 p-2 rounded-md border border-maroon/20">{error}</p>}
 
             <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 text-sm text-slate hover:text-ink font-medium transition-colors disabled:opacity-50"
-              >
+              <button type="button" onClick={onClose} disabled={loading} className="px-4 py-2 text-sm text-slate hover:text-ink font-medium transition-colors disabled:opacity-50">
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={loading}
-                className="flex items-center gap-2 rounded-md bg-maroon text-white px-5 py-2 text-sm font-medium hover:bg-maroon-dark transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 rounded-md bg-maroon text-white px-5 py-2 text-sm font-medium hover:bg-maroon-dark transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-maroon/30"
               >
-                {loading ? <Loader2 size={16} className="animate-spin"/> : <Trash2 size={16} />} Confirm Delete
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} Confirm Delete
               </button>
             </div>
           </div>
