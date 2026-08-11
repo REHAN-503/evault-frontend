@@ -4,6 +4,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import RequestAccess from './pages/RequestAccess';
 import LawyerDashboard from './pages/LawyerDashboard';
 import JudgeDashboard from './pages/JudgeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -22,6 +23,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/request-access" element={<RequestAccess />} />
 
           <Route path="/lawyer" element={<ProtectedRoute role="lawyer"><LawyerDashboard /></ProtectedRoute>} />
           <Route path="/lawyer/audit" element={<ProtectedRoute role="lawyer"><AuditPage role="lawyer" /></ProtectedRoute>} />

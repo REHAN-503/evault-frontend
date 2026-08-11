@@ -305,7 +305,7 @@ export default function PortalShell({ role, user, children }) {
                       </div>
                     </div>
                     <div className="p-1">
-                      <button type="button" className="w-full text-left px-3 py-2 text-sm text-slate hover:bg-paper-dim hover:text-ink rounded-md flex items-center gap-2 transition-colors">
+                      <button type="button" onClick={() => toast.info('Account settings are managed via the central identity provider.')} className="w-full text-left px-3 py-2 text-sm text-slate hover:bg-paper-dim hover:text-ink rounded-md flex items-center gap-2 transition-colors">
                         <Settings size={14} /> Account Settings
                       </button>
                       <button type="button" onClick={handleLogout} className="w-full text-left px-3 py-2 text-sm text-maroon hover:bg-maroon/5 rounded-md flex items-center gap-2 transition-colors mt-1">

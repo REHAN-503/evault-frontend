@@ -35,6 +35,7 @@ export default {
       fontFamily: {
         display: ['"Inter"', 'ui-sans-serif', 'system-ui'],
         body: ['"Inter"', 'ui-sans-serif', 'system-ui'],
+        serif: ['"Playfair Display"', 'Georgia', 'ui-serif', 'serif'],
         mono: ['ui-monospace', 'monospace'],
       },
       boxShadow: {
